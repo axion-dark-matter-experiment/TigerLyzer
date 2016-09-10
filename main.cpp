@@ -34,13 +34,13 @@ int main() {
 
             //Note that all background subtraction steps should be perfomred -before-
             //initial binning
-            if( j == 32 ) {
+            if( j == 40 ) {
                 plot( spec, "Single Digitized Power Spectrum");
             }
 
             UnsharpMask( spec, 150 );
 
-            if( j == 32 ) {
+            if( j == 40 ) {
                 plot( spec, "Background Subtracted Power Spectrum");
             }
             spec.InitialBin( 72 );
@@ -55,8 +55,14 @@ int main() {
     std::cout << "Converting to units of excess power." << std::endl;
     spectra.WattsToExcessPower();
 
+    auto e_spec = spectra.at(40);
+    plot( e_spec, "Excess Power Spectra" );
+
     std::cout << "Weighting spectra by expected axion power." << std::endl;
     spectra.KSVZWeight();
+
+    auto ax_spec = spectra.at(40);
+    plot( ax_spec, "Axion Power Spectra" );
 
     std::cout << "Building grand spectra." << std::endl;
     auto g_spec = spectra.GrandSpectrum();

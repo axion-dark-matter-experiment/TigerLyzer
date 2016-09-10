@@ -282,7 +282,7 @@ SingleSpectrum operator* (SingleSpectrum& spectra_a, double scalar) {
 
 #define ALPHA 7.2973525376e-3 // who knows?
 #define H 6.58211899e-16*2*M_PI //h in eV s
-#define G_KSVZ -0.97 // eV
+#define G_KSVZ 0.97 // eV
 #define KB 1.3806488e-23 //Watts / Hz / K
 
 
