@@ -36,18 +36,22 @@ FlatFileReader::FlatFileReader(std::string dir_name) {
 
     std::mutex guard;
 
+    //Yes, we are reading from disk in parallel
+    //It is important to note if this approach is used on a non-RAID
+    //hard disk there will be a signifigant performance DECREASE.
+
     #pragma omp parallel for
     for ( uint i = 0 ; i < file_list.size() ; i ++) {
 
-        guard.lock();
+        std::lock_guard<std::mutex> lock (guard);
         raw_data_list.push_back( FastRead( file_list.at(i) ) );
-        guard.unlock();
     }
 }
 
 FlatFileReader::~FlatFileReader() {
     raw_data_list.clear();
 }
+
 
 std::vector<std::string> FlatFileReader::EnumerateFiles(std::string dir_name, std::string sift_term) {
 
@@ -73,7 +77,11 @@ std::vector<std::string> FlatFileReader::EnumerateFiles(std::string dir_name, st
     } else {
         /* could not open directory */
         perror ("");
-        return file_names;
+        std::string err_mesg = __FUNCTION__;
+        err_mesg += ": Could not open directory.";
+        throw std::invalid_argument(err_mesg);
+
+//        return file_names;
     }
 }
 
@@ -105,4 +113,69 @@ std::string FlatFileReader::at(uint index) {
     }
 
     return raw_data_list.at(index);
+}
+
+FlatFileSaver::FlatFileSaver(std::string dir_name) {
+    save_file_path = dir_name;
+}
+
+template <typename T>
+void FlatFileSaver::load(std::vector<T> vec) {
+
+    for (const auto& val : vec ) {
+        try {
+            std::string num = boost::lexical_cast<std::string>(val);
+            power_list.push_back(num);
+        } catch (const boost::bad_lexical_cast& err) {
+            std::cout << "Could not add element! Reason:" << err.what() << std::endl;
+            return;
+        }
+    }
+}
+
+template <typename T>
+void FlatFileSaver::load(std::map<std::string, T> header) {
+
+    for (const auto& key_val : header ) {
+        try {
+            std::string val = boost::lexical_cast<std::string>(key_val.second);
+            header_map [key_val.first] = val;
+        } catch (const boost::bad_lexical_cast& err) {
+            std::cout << "Could not add element! Reason:" << err.what() << std::endl;
+            return;
+        }
+    }
+}
+
+std::string FlatFileSaver::cat() {
+    std::string total;
+
+    for ( const auto& val : power_list ) {
+        total += val + "\n";
+    }
+
+    return total;
+}
+
+bool FlatFileSaver::dump() {
+    const char* c_path=save_file_path.c_str();
+
+    if ( power_list.size() <= 1 ) {
+        std::cout << "Nothing to write to disk." << std::endl;
+        return false;
+    }
+    const char* output = cat().c_str();	//convert from std::string to character array
+
+    FILE* config;
+    config = std::fopen(c_path, "w");//open the text file specified by config_file_name and write data to file
+
+    if (config != NULL) {
+        std::fputs(output, config);
+        std::fclose(config);	//close config file
+        return true;
+    } else {
+        //if config if not opened properly, exit function
+        std::cout<<"Failed to write to file"<<std::endl;
+        return false;
+    }
 }
