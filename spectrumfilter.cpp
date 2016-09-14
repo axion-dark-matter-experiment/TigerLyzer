@@ -131,6 +131,7 @@ std::vector<double> Unsharp(std::vector<double>& data_list, uint radius) {
     auto gauss_matrix = GaussKernel( radius );
     auto blurred_mat = Convolve( data_list, gauss_matrix );
 
+
     //Even though our Gaussian kernel was normalized we cannot expect the
     //norm of our convolved matrix to be equal to the norm of the original
     //matrix. We need to compensate for this by multiplying the convolved

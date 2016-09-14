@@ -18,10 +18,12 @@ TEMPLATE = app
 SOURCES += main.cpp \
     flatfileinterface.cpp \
     spectrum.cpp \
-    spectrumfilter.cpp
+    spectrumfilter.cpp \
+    plotter.cpp
 
 HEADERS += \
     flatfileinterface.h \
     spectrum.h \
-    spectrumfilter.h
+    spectrumfilter.h \
+    plotter.h
 

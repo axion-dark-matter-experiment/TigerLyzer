@@ -290,7 +290,7 @@ double axion_width ( double frequency ) {
     return frequency*10.0e-6/2.0;
 }
 
-//Don't ask, I don't know
+//Don't ask, I don't know, tends to be ~10^-15
 double KSVZ_axion_coupling( double frequency ) {
     //compute mass in GeV^-1
     double mass_ev = frequency*H*1e6;
@@ -307,7 +307,6 @@ double estimate_G_2 ( double freq_mhz ) {
     return pow( KSVZ_axion_coupling( freq_mhz ), 2.0);
 }
 
-
 /*!
  * \brief Lorentz Line Shape
  * \param f0, the center frequency
@@ -318,7 +317,7 @@ double estimate_G_2 ( double freq_mhz ) {
 double lorentzian (double f0, double omega, double Q ) {
 
     double gamma=omega/(2.0*Q);
-    return pow(gamma,2.0)/( (omega-f0)*(omega-f0)+pow(gamma,2.0));
+    return pow(gamma,2.0)/( pow( (omega-f0), 2.0 )+pow(gamma,2.0) );
 
 }
 
@@ -338,81 +337,13 @@ double power_per_bin( double noise_temperature, double bin_width ) {
 }
 
 double inline dbm_to_watts ( double power_dbm ) {
-    return pow10(power_dbm / 10.0);
-}
-
-
-void plot ( SingleSpectrum& spec, std::string plot_title ) {
-
-    Gnuplot gp;
-
-    std::vector<double> x_vals;
-
-    double min_freq = spec.center_frequency - spec.frequency_span/2.0;
-    double span = spec.frequency_span;
-    double spectrum_points = static_cast<double> (spec.size());
-
-    for( uint i = 0 ; i < spec.size() ; i ++ ) {
-        double frequency = min_freq + span*i/spectrum_points;
-        x_vals.push_back(frequency);
-    }
-
-    gp << "set title '"+plot_title+"'\n";
-    gp << "plot '-' using 1:2 with lines title 'Power'\n";
-    gp.send( boost::make_tuple( x_vals, spec.sa_power_list ) );
-}
-
-void plot ( SingleSpectrum& spec, uint num_plot_points, std::string plot_title ) {
-
-    Gnuplot gp;
-
-    if( num_plot_points > spec.size() ) {
-        std::string err_mesg = __FUNCTION__;
-        err_mesg += "\nRequested number of points (";
-        err_mesg += boost::lexical_cast<std::string>( num_plot_points );
-        err_mesg += ") exceeds size of spectrum (";
-        err_mesg += boost::lexical_cast<std::string>( spec.size() ) +")";
-        throw std::out_of_range(err_mesg);
-    }
-
-    uint pivot = static_cast<uint> (spec.size() / num_plot_points);
-
-    double min_freq = spec.center_frequency - spec.frequency_span/2.0;
-    double span = spec.frequency_span;
-    double spectrum_points = static_cast<double> (spec.size());
-
-    std::vector<uint> pivot_indices;
-    for( uint i = 0 ; i < spec.size() ; i ++ ) {
-        if ( i%pivot == 0 ) {
-            pivot_indices.push_back(i);
-        }
-    }
-
-    std::vector<double> x_vals;
-    for ( const auto& idx : pivot_indices ) {
-        double frequency = min_freq + span*idx/spectrum_points;
-        x_vals.push_back(frequency);
-    }
-
-    std::vector<double> y_vals;
-    for ( const auto& idx : pivot_indices ) {
-        y_vals.push_back( spec.sa_power_list.at(idx) );
-    }
-
-    std::vector<double> delta_y_vals;
-    for ( const auto& idx : pivot_indices ) {
-        delta_y_vals.push_back( spec.uncertainties.at(idx) );
-    }
-
-    gp << "set title '"+plot_title+"'\n";
-    gp << "plot '-' using 1:2:3 with yerror title 'Power'\n";
-    gp.send( boost::make_tuple(x_vals, y_vals, delta_y_vals) );
+    return pow10(power_dbm / 10.0)/1000;
 }
 
 void SingleSpectrum::dBmToWatts() {
-    if( current_units == Units::Watts ) {
+    if( current_units != Units::dBm ) {
         std::string err_mesg = __FUNCTION__;
-        err_mesg += "\nSpectra is already in units of Watts.";
+        err_mesg += "\nSpectra must be in units of dBm.";
         throw std::invalid_argument(err_mesg);
     }
 
@@ -422,7 +353,6 @@ void SingleSpectrum::dBmToWatts() {
 
     current_units = Units::Watts;
 }
-
 
 /*!
  * \brief Convert from usings of watts to units of watts above noise (i.e. excess power)
@@ -481,6 +411,7 @@ void SingleSpectrum::KSVZWeight() {
         uncertainties.at(i) /= kszv_power_per_bin( frequency );
     }
 
+    current_units = Units::AxionPower;
 
 }
 
@@ -498,7 +429,10 @@ std::string SingleSpectrum::units() {
         return "dBm";
         break;
     case Units::ExcessPower:
-        return "Excess Power";
+        return "Excess Power in Cavity (Watts)";
+        break;
+    case Units::AxionPower:
+        return "Power Deposited by Axion";
         break;
     case Units::Watts:
         return "Watts";
@@ -743,7 +677,7 @@ double SingleSpectrum::max_freq() {
 
 double SingleSpectrum::sum(std::vector<double>& data_list,double exponent) {
 
-    double tot=0;
+    double tot = 0;
 
     for ( uint i = 0 ; i < data_list.size(); i ++) {
         tot += pow( data_list[i], exponent );
@@ -826,50 +760,6 @@ SingleSpectrum Spectrum::BlankGrandSpectrum () {
     return SingleSpectrum (total_bins, min_frequency, max_frequency);
 }
 
-/*
- *     //now make a grand spectrum
-    double total_span=freq_max-freq_min;
-    unsigned int total_bins=(unsigned int)(floor(total_span/bin_size))-1;
-
-    Spectrum grand_g_prediction(total_bins);
-
-    grand_g_prediction.freq_start=freq_min;
-    grand_g_prediction.freq_span=total_span;
-
-    grand_g_prediction.zero();
-
-    for(unsigned int i=0; i<grand_g_prediction.length; i++) {
-
-        double f=grand_g_prediction.getBinMidFreq(i);
-
-        for(unsigned int ons=0; ons<g_predictions.size(); ons++) {
-
-            unsigned int binno=g_predictions[ons].getBinAtFreq(f);
-
-            if(binno==INT_MAX) continue;
-
-            if(grand_g_prediction.uncertainty[i]==0) {
-
-                grand_g_prediction.power[i]=g_predictions[ons].power[binno];
-                grand_g_prediction.uncertainty[i]=g_predictions[ons].uncertainty[binno];
-
-            } else {
-
-                double a=grand_g_prediction.power[i];
-                double b=g_predictions[ons].power[binno];
-                double sa=grand_g_prediction.uncertainty[i];
-                double sb=g_predictions[ons].uncertainty[binno];
-                double taua=1.0/(sa*sa);
-                double taub=1.0/(sb*sb);
-                grand_g_prediction.power[i]=(taua*a+taub*b)/(taua+taub);
-                grand_g_prediction.uncertainty[i]=sqrt(1.0/(taua+taub));
-
-            }
-
-        }
-    }
- */
-
 inline double overlap_power_weight( double power_a, double power_b, double delta_a, double delta_b ) {
     double tau_a = 1.0/pow( delta_a, 2.0 );
     double tau_b = 1.0/pow( delta_b, 2.0 );
@@ -880,17 +770,6 @@ inline double overlap_uncertainity_weight( double delta_a, double delta_b ) {
     double tau_a = 1.0/pow( delta_a, 2.0 );
     double tau_b = 1.0/pow( delta_b, 2.0 );
     return sqrt((1.0)/(tau_a + tau_b));
-}
-
-std::map<double, double> FreqIndexMap ( SingleSpectrum& spec) {
-
-    std::map<double, double> freq_to_power;
-
-    for( uint i = 0 ; i < spec.size() ; i++ ) {
-        freq_to_power[ spec.bin_mid_freq(i) ] = i;
-    }
-
-    return freq_to_power;
 }
 
 inline bool check_frequency( double to_check , SingleSpectrum& check_against) {
@@ -927,10 +806,17 @@ class recurse_mean {
     uint counter = 0;
 };
 
+//grand_g_prediction.power[i]*(pow(get_axion_KSVZ_coupling(grand_g_prediction.getBinMidFreq(i)),2.0))
+//grand_g_prediction.uncertainty[i]*(pow(get_axion_KSVZ_coupling(grand_g_prediction.getBinMidFreq(i)),2.0))
+
+//grand_spectrum.sa_power_list.at(i) *= pow( KSVZ_axion_coupling( grand_spectrum.bin_mid_freq(i). , 2.0);
+//grand_spectrum.uncertainties.at(i) *= pow( KSVZ_axion_coupling( grand_spectrum.bin_mid_freq(i). , 2.0);
+
 SingleSpectrum Spectrum::GrandSpectrum() {
 
     auto grand_spectrum = BlankGrandSpectrum();
     uint g_size = grand_spectrum.size();
+
 
     for(uint i=0; i< g_size; i++) {
 
@@ -950,9 +836,6 @@ SingleSpectrum Spectrum::GrandSpectrum() {
                     double current_uncertainty = grand_spectrum.uncertainties.at(i);
                     double overlap_uncertainity = spectra.at(k).uncertainties.at(bin_number);
 
-//                    grand_spectrum.sa_power_list.at(i) = running_average (overlap_power);
-//                    grand_spectrum.uncertainties.at(i) = running_average.uncertainity(overlap_uncertainity);
-
                     grand_spectrum.sa_power_list.at(i) = overlap_power_weight( current_power,\
                                                          overlap_power,\
                                                          current_uncertainty,\
@@ -961,6 +844,7 @@ SingleSpectrum Spectrum::GrandSpectrum() {
                     grand_spectrum.sa_power_list.at(i) = overlap_uncertainity_weight(\
                                                          current_uncertainty,\
                                                          overlap_uncertainity );
+
                 } else {
 
                     grand_spectrum.sa_power_list.at(i) = spectra.at(k).sa_power_list.at(bin_number);
@@ -982,16 +866,30 @@ template<typename T> inline T positive_part ( T& x ) {
     return ( x < 0 )? 0 : x;
 }
 
+
+//    thelimits.power[i]=x+2.0*grand_g_prediction.uncertainty[i];
+
+//    thelimits.power[i] = sqrt(thelimits.power[i]) *get_axion_KSVZ_coupling(thelimits.getBinMidFreq(i));
+//    thelimits.uncertainty[i] = get_axion_KSVZ_coupling(thelimits.getBinMidFreq(i));
+
 SingleSpectrum Spectrum::Limits() {
 
     auto g_spectrum = GrandSpectrum();
 
     for (uint i = 0; i < g_spectrum.size() ; i++ ) {
 
+        //double x=grand_g_prediction.power[i];
+        //if(x<0) x=0;
+        //thelimits.power[i]=x+2.0*grand_g_prediction.uncertainty[i];
+
+        //thelimits.power[i] = sqrt(thelimits.power[i]) *get_axion_KSVZ_coupling(thelimits.getBinMidFreq(i));
+        //thelimits.uncertainty[i] =get_axion_KSVZ_coupling(thelimits.getBinMidFreq(i));
+
+
         double g_power = positive_part( g_spectrum.sa_power_list[i]);
 
-        g_spectrum.sa_power_list[i] = sqrt( g_power + 2.0*g_spectrum.uncertainties[i] )\
-                                      * KSVZ_axion_coupling(g_spectrum.bin_mid_freq(i));
+        g_spectrum.sa_power_list[i] = g_power + 2.0*g_spectrum.uncertainties[i];
+        g_spectrum.sa_power_list[i] = sqrt( g_spectrum.sa_power_list[i] )* KSVZ_axion_coupling( g_spectrum.bin_mid_freq(i) );
 
         g_spectrum.uncertainties[i] = KSVZ_axion_coupling(g_spectrum.bin_mid_freq(i));
     }

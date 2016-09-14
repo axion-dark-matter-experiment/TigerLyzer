@@ -15,13 +15,13 @@
 //Miscellaneous Headers
 //
 
-enum class Units {dBm, Watts, ExcessPower};
+enum class Units {dBm, Watts, ExcessPower, AxionPower};
 
 struct SpectrumParameters {
 
     double center_frequency = 0.0; //MHz
     double frequency_span = 0.0; //MHz
-    double effective_volume = 0.0; // No units...
+    double effective_volume = 0.0; // cm^3...
     double Q = 0.0; //Quality Factor
 
     uint number_of_averages = 0; //Number of averages taken by instrument
@@ -173,7 +173,7 @@ class SingleSpectrum {
     double effective_volume = 0.0; // cm^3
     double noise_temperature = 0.0; // in Kelvin
     double Q = 0.0; //Quality Factor
-    double b_field = 0.0; //Magnetic field is Tesla
+    double b_field = 0.0; //Magnetic field in Tesla
 
     uint number_of_averages = 0; //Number of averages taken by instrument
     uint fft_points = 0; //Number of time-series points used to make FFT

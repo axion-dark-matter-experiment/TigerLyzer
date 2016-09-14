@@ -1,6 +1,7 @@
 #include "flatfileinterface.h"
 #include "spectrum.h"
 #include "spectrumfilter.h"
+#include "plotter.h"
 
 #include <iostream>
 #include <iomanip>      // std::setprecision
@@ -26,7 +27,7 @@ int main() {
     for (int i = 0 ; i < 1 ; i++) {
         auto Reader = FlatFileReader("/home/bephillips2/workspace/Electric_Tiger_Control_Code/data/27_20_00_20.08.2016/");
 
-        #pragma omp parallel for ordered
+//        #pragma omp parallel for ordered
         for( uint j = 0 ; j < Reader.size() ; j ++) {
 
             std::cout << "Loading spectrum "<< j << std::endl;
@@ -38,7 +39,7 @@ int main() {
                 plot( spec, "Single Digitized Power Spectrum");
             }
 
-            UnsharpMask( spec, 150 );
+            UnsharpMask( spec, 15 );
 
             if( j == 40 ) {
                 plot( spec, "Background Subtracted Power Spectrum");
@@ -71,11 +72,6 @@ int main() {
     std::cout << "Building limits." << std::endl;
     auto limits = spectra.Limits();
     plot ( limits, limits.size(), "Limits" );
-
-    std::cout << "Building G^2 prediction." << std::endl;
-    auto g_2_prediction = spectra.Limits();
-    plot ( g_2_prediction, 100, "G^2 Prediction" );
-
 
     auto end = std::chrono::high_resolution_clock::now();
     std::chrono::duration<double, std::milli> fp_ms = end - start;
