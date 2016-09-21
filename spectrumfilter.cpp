@@ -1,11 +1,9 @@
 //Header for this file
 #include "spectrumfilter.h"
-
 //C System-Headers
 #include <sys/ioctl.h>
 #include <fcntl.h>//fopen(),fclose()
 #include <unistd.h>//read(), write()
-
 //C++ System headers
 #include <vector>//vector
 #include <string>//string
@@ -18,13 +16,13 @@
 #include <functional> // plus/minus
 #include <utility>//std::make_pair
 #include <map>//std::map
-
 //Boost Headers
 #include <boost/algorithm/string.hpp>//split() and is_any_of for parsing .csv files
 #include <boost/lexical_cast.hpp>//lexical cast (unsurprisingly)
-
 //Miscellaneous Headers
 #include <omp.h>//OpenMP pragmas
+//Project Specific Headers
+#include "singlespectrum.h"
 
 //sum all enteries in a vector, with optional parameter of raising each entry to a power
 //used by Standard Deviation function

@@ -19,11 +19,15 @@ SOURCES += main.cpp \
     flatfileinterface.cpp \
     spectrum.cpp \
     spectrumfilter.cpp \
-    plotter.cpp
+    plotter.cpp \
+    singlespectrum.cpp \
+    physicsfunctions.cpp
 
 HEADERS += \
     flatfileinterface.h \
     spectrum.h \
     spectrumfilter.h \
-    plotter.h
+    plotter.h \
+    singlespectrum.h \
+    physicsfunctions.h
 

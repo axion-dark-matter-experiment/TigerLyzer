@@ -1,5 +1,6 @@
 #include "flatfileinterface.h"
 #include "spectrum.h"
+#include "singlespectrum.h"
 #include "spectrumfilter.h"
 #include "plotter.h"
 

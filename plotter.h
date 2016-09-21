@@ -10,7 +10,7 @@
 // Miscellaneous Headers
 //
 // Project specific headers
-#include "spectrum.h"
+#include "singlespectrum.h"
 
 //Friend class of SingleSpectrum
 void plot ( SingleSpectrum& spec, std::string plot_title );
