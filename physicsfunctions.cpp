@@ -15,8 +15,8 @@
 #include "physicsfunctions.h"
 
 
-#define ALPHA 7.2973525376e-3 // who knows?
-#define H 6.58211899e-16*2*M_PI //h in eV s
+#define ALPHA 7.2973525376e-3 // strong cooupling constant = 1/137
+#define H 4.13566766225e-15 //h in eV s
 #define G_KSVZ 0.97 // eV
 #define KB 1.3806488e-23 //Watts / Hz / K
 
@@ -25,14 +25,12 @@ double axion_width ( double frequency ) {
     return frequency*10.0e-6/2.0;
 }
 
-//Don't ask, I don't know, tends to be ~10^-15
+//See Ed Daw's theses, page 23, eq.2.25
 double KSVZ_axion_coupling( double frequency ) {
     //compute mass in GeV^-1
     double mass_ev = frequency*H*1e6;
     //compute coupling in GeV^-1
-    double axion_coupling = 1e-7*(mass_ev/0.62)*(ALPHA*G_KSVZ/M_PI);
-
-    return axion_coupling;
+    return 1e-7*(mass_ev/0.62)*(ALPHA*G_KSVZ/M_PI);
 }
 
 //Aply to uncertainties and powers
@@ -44,7 +42,7 @@ double estimate_G_2 ( double freq_mhz ) {
 
 double lorentzian (double f0, double omega, double Q ) {
 
-    double gamma=omega/(2.0*Q);
+    double gamma = omega/(2.0*Q);
     return pow(gamma,2.0)/( pow( (omega-f0), 2.0 )+pow(gamma,2.0) );
 
 }
@@ -55,6 +53,7 @@ double max_ksvz_power( double effective_volume, double b_field, double frequency
 
 //double noise_power=kB*runs[onrun].noise_temperature *(thespectrum.getBinWidth()*1e6);
 
+//Noise power per bin, see Daw These pg. 72 eq. 4.10
 double power_per_bin( double noise_temperature, double bin_width ) {
     return KB*noise_temperature*bin_width*1e6;
 }

@@ -81,7 +81,7 @@ class SingleSpectrum {
     void dBmToWatts();
     void WattsToExcessPower();
     void KSVZWeight();
-
+    void LorentzianWeight();
     friend SingleSpectrum Spectrum::GrandSpectrum();
     friend SingleSpectrum Spectrum::Limits();
     friend SingleSpectrum Spectrum::GSquaredPrediction();
@@ -113,7 +113,7 @@ class SingleSpectrum {
     uint num_lines(std:: string raw_data);
 
     void FillFromHeader(std::map<std::string, double> header);
-    void PopulateUncertainties();
+    void PopulateUncertainties(uint rebin_size);
 
     double sum( std::vector<double>& data_list , double exponent = 1.0 );
     double mean( std::vector<double>& data_list );

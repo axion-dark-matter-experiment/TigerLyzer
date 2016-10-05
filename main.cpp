@@ -3,6 +3,7 @@
 #include "singlespectrum.h"
 #include "spectrumfilter.h"
 #include "plotter.h"
+#include "physicsfunctions.h"
 
 #include <iostream>
 #include <iomanip>      // std::setprecision
@@ -27,6 +28,7 @@ int main() {
 
     for (int i = 0 ; i < 1 ; i++) {
         auto Reader = FlatFileReader("/home/bephillips2/workspace/Electric_Tiger_Control_Code/data/27_20_00_20.08.2016/");
+//        auto Reader = FlatFileReader("/home/bephillips2/workspace/Electric_Tiger_Control_Code/data/09_56_11_17.08.2016/");
 
 //        #pragma omp parallel for ordered
         for( uint j = 0 ; j < Reader.size() ; j ++) {
@@ -36,16 +38,16 @@ int main() {
 
             //Note that all background subtraction steps should be perfomred -before-
             //initial binning
-            if( j == 40 ) {
-                plot( spec, "Single Digitized Power Spectrum");
-            }
+//            if( j == 20 ) {
+//                plot( spec, "Single Digitized Power Spectrum");
+//            }
 
-            UnsharpMask( spec, 15 );
+            UnsharpMask( spec, 10 );
 
-            if( j == 40 ) {
-                plot( spec, "Background Subtracted Power Spectrum");
-            }
-            spec.InitialBin( 72 );
+//            if( j == 20 ) {
+//                plot( spec, "Background Subtracted Power Spectrum");
+//            }
+            spec.InitialBin( 32 );
 
             spectra += spec;
         }
@@ -57,13 +59,18 @@ int main() {
     std::cout << "Converting to units of excess power." << std::endl;
     spectra.WattsToExcessPower();
 
-    auto e_spec = spectra.at(40);
+    auto e_spec = spectra.at(20);
     plot( e_spec, "Excess Power Spectra" );
 
     std::cout << "Weighting spectra by expected axion power." << std::endl;
-    spectra.KSVZWeight();
+//    spectra.FakeLorentz();
+//    auto lorentz = spectra.at(5);
 
-    auto ax_spec = spectra.at(40);
+//    plot( lorentz, "Lorentzian");
+//    spectra.KSVZWeight();
+    spectra.LorentzianWeight();
+
+    auto ax_spec = spectra.at(20);
     plot( ax_spec, "Axion Power Spectra" );
 
     std::cout << "Building grand spectra." << std::endl;
@@ -72,7 +79,7 @@ int main() {
 
     std::cout << "Building limits." << std::endl;
     auto limits = spectra.Limits();
-    plot ( limits, limits.size(), "Limits" );
+    plot ( limits, 500, "Limits" );
 
     auto end = std::chrono::high_resolution_clock::now();
     std::chrono::duration<double, std::milli> fp_ms = end - start;

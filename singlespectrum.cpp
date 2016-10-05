@@ -316,7 +316,7 @@ void SingleSpectrum::WattsToExcessPower() {
         sa_power_list.at(i) += ( -noise_power );
     }
 
-    PopulateUncertainties();
+    PopulateUncertainties( 32 );
 
     current_units = Units::ExcessPower;
 }
@@ -329,6 +329,24 @@ double SingleSpectrum::kszv_power_per_bin( double freq_mhz ) {
     double off_center_power = Q*lorentzian( center_frequency, freq_mhz, Q );
 
     return max_power*off_center_power;
+}
+//double lorentzian (double f0, double omega, double Q )
+void SingleSpectrum::LorentzianWeight() {
+    if( current_units != Units::ExcessPower ) {
+        std::string err_mesg = __FUNCTION__;
+        err_mesg += "\nSpectra must be in units of excess power.";
+        throw std::invalid_argument(err_mesg);
+    }
+
+    for(uint i=0; i < size(); i++) {
+
+        double frequency = bin_mid_freq(i);
+
+        sa_power_list.at(i) /= lorentzian( center_frequency, frequency, Q );
+        uncertainties.at(i) /= lorentzian( center_frequency, frequency, Q );
+    }
+
+    current_units = Units::AxionPower;
 }
 
 void SingleSpectrum::KSVZWeight() {
@@ -351,9 +369,6 @@ void SingleSpectrum::KSVZWeight() {
 
 }
 
-/*****************************************************************************/
-/*****************************************************************************/
-
 std::string SingleSpectrum::units() {
     switch( current_units ) {
     case Units::dBm:
@@ -374,12 +389,14 @@ std::string SingleSpectrum::units() {
     }
 }
 
-void SingleSpectrum::PopulateUncertainties() {
+void SingleSpectrum::PopulateUncertainties( uint rebin_size ) {
 
     uncertainties.clear();
 
     double noise_power = power_per_bin( noise_temperature, bin_width() );
-    double uniform_uncertainty = noise_power / sqrt( number_of_averages * bin_width() );
+    double uniform_uncertainty = noise_power / sqrt( number_of_averages*rebin_size );
+
+    std::cout << uniform_uncertainty << std::endl;
 
     uncertainties = std::vector<double> ( size() , uniform_uncertainty);
 }
@@ -606,7 +623,7 @@ double SingleSpectrum::max_freq() {
     return ( center_frequency + 0.5*frequency_span);
 }
 
-double SingleSpectrum::sum(std::vector<double>& data_list,double exponent) {
+double SingleSpectrum::sum(std::vector<double>& data_list, double exponent) {
 
     double tot = 0;
 

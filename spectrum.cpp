@@ -182,11 +182,6 @@ template<typename T> inline T positive_part ( T& x ) {
 }
 
 
-//    thelimits.power[i]=x+2.0*grand_g_prediction.uncertainty[i];
-
-//    thelimits.power[i] = sqrt(thelimits.power[i]) *get_axion_KSVZ_coupling(thelimits.getBinMidFreq(i));
-//    thelimits.uncertainty[i] = get_axion_KSVZ_coupling(thelimits.getBinMidFreq(i));
-
 SingleSpectrum Spectrum::Limits() {
 
     auto g_spectrum = GrandSpectrum();
@@ -201,15 +196,16 @@ SingleSpectrum Spectrum::Limits() {
         //thelimits.uncertainty[i] =get_axion_KSVZ_coupling(thelimits.getBinMidFreq(i));
 
 
-        double g_power = positive_part( g_spectrum.sa_power_list[i]);
+        double gc_power = positive_part( g_spectrum.sa_power_list[i]);
+        double lim_watts = gc_power + 2.0*g_spectrum.uncertainties[i];
 
-        g_spectrum.sa_power_list[i] = g_power + 2.0*g_spectrum.uncertainties[i];
-        g_spectrum.sa_power_list[i] = sqrt( g_spectrum.sa_power_list[i] )* KSVZ_axion_coupling( g_spectrum.bin_mid_freq(i) );
+        g_spectrum.sa_power_list[i] = lim_watts;
 
-        g_spectrum.uncertainties[i] = KSVZ_axion_coupling(g_spectrum.bin_mid_freq(i));
+//        g_spectrum.sa_power_list[i] = unitless_g*KSVZ_axion_coupling( g_spectrum.bin_mid_freq(i) );
+//        g_spectrum.uncertainties[i] = KSVZ_axion_coupling(g_spectrum.bin_mid_freq(i));
     }
 
-    g_spectrum.rebin( 600 );
+//    g_spectrum.rebin( 600 );
 
     return g_spectrum;
 }
@@ -262,6 +258,14 @@ void Spectrum::KSVZWeight() {
 
     for( auto& spec : spectra ) {
         spec.KSVZWeight();
+    }
+
+}
+
+void Spectrum::LorentzianWeight() {
+
+    for( auto& spec : spectra ) {
+        spec.LorentzianWeight();
     }
 
 }
