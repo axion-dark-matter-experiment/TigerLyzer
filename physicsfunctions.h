@@ -35,7 +35,7 @@ double lorentzian (double f0, double omega, double Q );
  * \param Frequency in GHz
  * \return photon conversion power in watts (?)
  */
-double max_ksvz_power( double effective_volume, double b_field, double frequency);
+double max_ksvz_power(double effective_volume, double b_field, double frequency, double Q);
 
 //double noise_power=kB*runs[onrun].noise_temperature *(thespectrum.getBinWidth()*1e6);
 

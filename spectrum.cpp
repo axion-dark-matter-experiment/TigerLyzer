@@ -91,48 +91,13 @@ inline bool check_frequency( double to_check , SingleSpectrum& check_against) {
     return !( to_check > check_against.max_freq() || to_check < check_against.min_freq());
 }
 
-class recurse_mean {
-
-  public:
-    recurse_mean() {}
-    recurse_mean( double initial_sample ) {
-        held_average = initial_sample;
-        counter ++;
-    }
-
-    double operator()(double current_sample) {
-        if ( counter == 0 ) {
-            counter ++;
-            held_average = current_sample;
-        } else {
-            counter ++;
-            held_average = (counter - 1)/counter*held_average + current_sample/counter;
-        }
-
-        return held_average;
-    }
-
-    double uncertainity (double current_sample) {
-        return sqrt(pow((counter - 1)/counter*held_average,2.0) + pow((current_sample/counter),2.0));
-    }
-
-  private:
-    double held_average = 0.0;
-    uint counter = 0;
-};
-
-//grand_g_prediction.power[i]*(pow(get_axion_KSVZ_coupling(grand_g_prediction.getBinMidFreq(i)),2.0))
-//grand_g_prediction.uncertainty[i]*(pow(get_axion_KSVZ_coupling(grand_g_prediction.getBinMidFreq(i)),2.0))
-
-//grand_spectrum.sa_power_list.at(i) *= pow( KSVZ_axion_coupling( grand_spectrum.bin_mid_freq(i). , 2.0);
-//grand_spectrum.uncertainties.at(i) *= pow( KSVZ_axion_coupling( grand_spectrum.bin_mid_freq(i). , 2.0);
 
 SingleSpectrum Spectrum::GrandSpectrum() {
 
     auto grand_spectrum = BlankGrandSpectrum();
     uint g_size = grand_spectrum.size();
 
-
+    #pragma omp parallel for
     for(uint i=0; i< g_size; i++) {
 
         double g_frequency_at_i = grand_spectrum.bin_mid_freq(i);
@@ -182,30 +147,48 @@ template<typename T> inline T positive_part ( T& x ) {
 }
 
 
+//SingleSpectrum Spectrum::Limits() {
+
+//    auto g_spectrum = GrandSpectrum();
+
+//    for (uint i = 0; i < g_spectrum.size() ; i++ ) {
+
+//        //double x=grand_g_prediction.power[i];
+//        //if(x<0) x=0;
+//        //thelimits.power[i]=x+2.0*grand_g_prediction.uncertainty[i];
+
+//        //thelimits.power[i] = sqrt(thelimits.power[i]) *get_axion_KSVZ_coupling(thelimits.getBinMidFreq(i));
+//        //thelimits.uncertainty[i] =get_axion_KSVZ_coupling(thelimits.getBinMidFreq(i));
+
+
+//        double gc_power = positive_part( g_spectrum.sa_power_list[i]);
+//        double excl_90_watts = gc_power + 1.282*g_spectrum.uncertainties[i];
+
+//        double power_ksvz = max_ksvz_power( 20, 1.54, g_spectrum.bin_mid_freq(i), 100 );
+
+//        g_spectrum.sa_power_list[i] = KSVZ_axion_coupling( g_spectrum.bin_mid_freq(i) )*sqrt( excl_90_watts/power_ksvz );
+//        g_spectrum.uncertainties[i] = KSVZ_axion_coupling(g_spectrum.bin_mid_freq(i));
+//    }
+
+//    g_spectrum.rebin( 600 );
+
+//    return g_spectrum;
+//}
+
 SingleSpectrum Spectrum::Limits() {
 
     auto g_spectrum = GrandSpectrum();
 
     for (uint i = 0; i < g_spectrum.size() ; i++ ) {
 
-        //double x=grand_g_prediction.power[i];
-        //if(x<0) x=0;
-        //thelimits.power[i]=x+2.0*grand_g_prediction.uncertainty[i];
-
-        //thelimits.power[i] = sqrt(thelimits.power[i]) *get_axion_KSVZ_coupling(thelimits.getBinMidFreq(i));
-        //thelimits.uncertainty[i] =get_axion_KSVZ_coupling(thelimits.getBinMidFreq(i));
-
-
         double gc_power = positive_part( g_spectrum.sa_power_list[i]);
-        double lim_watts = gc_power + 2.0*g_spectrum.uncertainties[i];
+        double excl_90_watts = gc_power + 1.282*g_spectrum.uncertainties[i];
 
-        g_spectrum.sa_power_list[i] = lim_watts;
-
-//        g_spectrum.sa_power_list[i] = unitless_g*KSVZ_axion_coupling( g_spectrum.bin_mid_freq(i) );
-//        g_spectrum.uncertainties[i] = KSVZ_axion_coupling(g_spectrum.bin_mid_freq(i));
+        g_spectrum.sa_power_list[i] = KSVZ_axion_coupling( g_spectrum.bin_mid_freq(i) )*sqrt( excl_90_watts );
+        g_spectrum.uncertainties[i] = KSVZ_axion_coupling( g_spectrum.bin_mid_freq(i) );
     }
 
-//    g_spectrum.rebin( 600 );
+    g_spectrum.rebin( 600 );
 
     return g_spectrum;
 }

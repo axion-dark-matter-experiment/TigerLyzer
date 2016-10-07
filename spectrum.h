@@ -62,7 +62,6 @@ class Spectrum {
      * Will fail if spectra are not in units of ExcessPower
      */
     void KSVZWeight();
-
     void LorentzianWeight();
 
     uint size();

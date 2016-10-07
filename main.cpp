@@ -38,15 +38,15 @@ int main() {
 
             //Note that all background subtraction steps should be perfomred -before-
             //initial binning
-//            if( j == 20 ) {
-//                plot( spec, "Single Digitized Power Spectrum");
-//            }
+            if( j == 20 ) {
+                plot( spec, "Single Digitized Power Spectrum");
+            }
 
             UnsharpMask( spec, 10 );
 
-//            if( j == 20 ) {
-//                plot( spec, "Background Subtracted Power Spectrum");
-//            }
+            if( j == 20 ) {
+                plot( spec, "Background Subtracted Power Spectrum");
+            }
             spec.InitialBin( 32 );
 
             spectra += spec;
@@ -63,12 +63,9 @@ int main() {
     plot( e_spec, "Excess Power Spectra" );
 
     std::cout << "Weighting spectra by expected axion power." << std::endl;
-//    spectra.FakeLorentz();
-//    auto lorentz = spectra.at(5);
 
-//    plot( lorentz, "Lorentzian");
-//    spectra.KSVZWeight();
     spectra.LorentzianWeight();
+    spectra.KSVZWeight();
 
     auto ax_spec = spectra.at(20);
     plot( ax_spec, "Axion Power Spectra" );
@@ -79,7 +76,7 @@ int main() {
 
     std::cout << "Building limits." << std::endl;
     auto limits = spectra.Limits();
-    plot ( limits, 500, "Limits" );
+    plot ( limits, "Limits" );
 
     auto end = std::chrono::high_resolution_clock::now();
     std::chrono::duration<double, std::milli> fp_ms = end - start;

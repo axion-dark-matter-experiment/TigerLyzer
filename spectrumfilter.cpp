@@ -67,53 +67,46 @@ std::vector<double> GaussKernel(int r) {
     return Normalize(vals);
 }
 
-//Note we are deliberately passing data_list by reference so that we can make a copy
-//We can either choose to pad data_list itself with zeros, or copy its contents
-//and pad the copy. Experiments suggest padding data_list is much faster than copying
-//within the function body
-std::vector<double> Convolve(std::vector<double> data_list,const std::vector<double>& kernel) {
-    int n = data_list.size();
-    int k = kernel.size();
+template <typename T>
+std::vector<T> LinearConvolve( std::vector<T>& signal, std::vector<T>& kernel) {
 
-    //Copy data_list into deque to speed up front/back insertions that will be needed
-    //for zero padding
-//    std::deque<double> data_deque (data_list.begin(),data_list.end());
-    //Pad data_list with zeros at front and back
+    int kernel_size = kernel.size();
+    int half_k_size = (kernel_size - 1 )/2;
 
-//    for (int i=1; i<=k; i++) {
-//        data_deque.push_front(0.0);
-//        data_deque.push_back(0.0);
-//    }
+    int signal_size = signal.size();
+    int signal_max_index = signal_size - 1;
 
-    //reserver space for zero padding
-    data_list.reserve ( n + 2*k );
+    std::vector<T> output( signal_size , 0);
 
-    //Pad data_list with zeros at front and back
-    //Yes, a deque would be faster
-    //For now we are only focusing on vector operations
-    //Try not to worry about the k*O(n) complexity operations
-    //that we are incuring...
-    for (int i = 0; i < k; i++) {
-        data_list.insert(data_list.begin(), 0.0);
-        data_list.push_back(0.0);
-    }
+    #pragma omp parallel for
+    for ( int i = 0 ; i < signal_size ; i++ ) {
 
-    std::vector<double> convolved_list;
-    convolved_list.reserve( n - k );
+        float conv_elem = 0.0f;
 
-    #pragma omp parallel for ordered
-    for(int i = 2*k; i< n+k; i++) {
+        int k_max = ( ( i + half_k_size ) > signal_max_index )?( signal_max_index + half_k_size - i ):(kernel_size);
+        int k_min = ( ( i - half_k_size ) < 0 )?( half_k_size - i ):(0);
 
-        double conv_elem=0.0;
+        for ( int j = k_min ; j < k_max ; j++ ) {
 
-        for(int j = 0; j<k ; j++) {
-            conv_elem += data_list.at(i-j)*kernel.at(j);
+            conv_elem += signal[ i + j - half_k_size]*kernel[ j ];
         }
 
-        #pragma omp ordered
-        convolved_list.push_back( conv_elem );
+        for ( int j = 0 ; j < k_min ; j++ ) {
+
+            conv_elem += signal[ -i - j + half_k_size ]*kernel[ j ];
+        }
+
+        for ( int j = k_max ; j < kernel_size ; j++ ) {
+
+            conv_elem += signal[ 2*signal_max_index - i - j + half_k_size ]*kernel[ j ];
+
+        }
+
+        output[i] = conv_elem;
+
     }
-    return convolved_list;
+
+    return output;
 }
 
 //Convolve the input list 'data_list' with a gaussian kernel with user defined radius
@@ -121,13 +114,13 @@ std::vector<double> Convolve(std::vector<double> data_list,const std::vector<dou
 std::vector<double> GaussBlur(std::vector<double>& data_list, uint radius) {
 
     auto gauss_matrix = GaussKernel( radius );
-    return Convolve(data_list,gauss_matrix);
+    return LinearConvolve( data_list, gauss_matrix );
 }
 
 std::vector<double> Unsharp(std::vector<double>& data_list, uint radius) {
 
     auto gauss_matrix = GaussKernel( radius );
-    auto blurred_mat = Convolve( data_list, gauss_matrix );
+    auto blurred_mat = LinearConvolve( data_list, gauss_matrix );
 
 
     //Even though our Gaussian kernel was normalized we cannot expect the

@@ -322,14 +322,14 @@ void SingleSpectrum::WattsToExcessPower() {
 }
 
 
-double SingleSpectrum::kszv_power_per_bin( double freq_mhz ) {
-    double freq_ghz = freq_mhz/1e3;
+//double SingleSpectrum::kszv_power_per_bin( double freq_mhz ) {
+//    double freq_ghz = freq_mhz/1e3;
 
-    double max_power = max_ksvz_power(effective_volume, b_field, freq_ghz);
-    double off_center_power = Q*lorentzian( center_frequency, freq_mhz, Q );
+//    double max_power = max_ksvz_power(effective_volume, b_field, freq_ghz);
+//    double off_center_power = Q*lorentzian( center_frequency, freq_mhz, Q );
 
-    return max_power*off_center_power;
-}
+//    return max_power*off_center_power;
+//}
 //double lorentzian (double f0, double omega, double Q )
 void SingleSpectrum::LorentzianWeight() {
     if( current_units != Units::ExcessPower ) {
@@ -346,7 +346,6 @@ void SingleSpectrum::LorentzianWeight() {
         uncertainties.at(i) /= lorentzian( center_frequency, frequency, Q );
     }
 
-    current_units = Units::AxionPower;
 }
 
 void SingleSpectrum::KSVZWeight() {
@@ -361,8 +360,8 @@ void SingleSpectrum::KSVZWeight() {
 
         double frequency = bin_mid_freq(i);
 
-        sa_power_list.at(i) /= kszv_power_per_bin( frequency );
-        uncertainties.at(i) /= kszv_power_per_bin( frequency );
+        sa_power_list.at(i) /= max_ksvz_power( effective_volume, b_field, frequency, Q );
+        uncertainties.at(i) /= max_ksvz_power( effective_volume, b_field, frequency, Q );
     }
 
     current_units = Units::AxionPower;
@@ -395,8 +394,6 @@ void SingleSpectrum::PopulateUncertainties( uint rebin_size ) {
 
     double noise_power = power_per_bin( noise_temperature, bin_width() );
     double uniform_uncertainty = noise_power / sqrt( number_of_averages*rebin_size );
-
-    std::cout << uniform_uncertainty << std::endl;
 
     uncertainties = std::vector<double> ( size() , uniform_uncertainty);
 }
@@ -582,6 +579,7 @@ void SingleSpectrum::FillFromHeader(std::map<std::string, double> header) {
 
 void SingleSpectrum::ParseRawData(std::string raw_data) {
     uint lines = num_lines(raw_data);
+    sa_power_list.reserve( lines );
 
     std::istringstream data_stream(raw_data);
 

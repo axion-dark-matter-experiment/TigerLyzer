@@ -47,8 +47,8 @@ double lorentzian (double f0, double omega, double Q ) {
 
 }
 
-double max_ksvz_power( double effective_volume, double b_field, double frequency) {
-    return 2.2e-23*pow(b_field, 2.0)*effective_volume*frequency;
+double max_ksvz_power( double effective_volume, double b_field, double frequency, double Q) {
+    return 2.278e-33*pow(b_field, 2.0)*effective_volume*frequency*Q;
 }
 
 //double noise_power=kB*runs[onrun].noise_temperature *(thespectrum.getBinWidth()*1e6);
