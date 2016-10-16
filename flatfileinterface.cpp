@@ -30,9 +30,9 @@
 //Miscellaneous Headers
 #include <omp.h>//OpenMP pragmas
 
-FlatFileReader::FlatFileReader(std::string dir_name) {
+FlatFileReader::FlatFileReader(std::string dir_name, std::string sift_term ) {
 
-    std::vector<std::string> file_list = EnumerateFiles(dir_name, "SA_F");
+    std::vector<std::string> file_list = EnumerateFiles(dir_name, sift_term);
 
     std::mutex guard;
 
@@ -80,8 +80,6 @@ std::vector<std::string> FlatFileReader::EnumerateFiles(std::string dir_name, st
         std::string err_mesg = __FUNCTION__;
         err_mesg += ": Could not open directory.";
         throw std::invalid_argument(err_mesg);
-
-//        return file_names;
     }
 }
 
@@ -97,10 +95,6 @@ std::string FlatFileReader::FastRead( std::string file_name ) {
 
 uint FlatFileReader::size() {
     return raw_data_list.size();
-}
-
-bool FlatFileReader::has(uint index) {
-    return (index <= raw_data_list.size())?true:false;
 }
 
 std::string FlatFileReader::at(uint index) {

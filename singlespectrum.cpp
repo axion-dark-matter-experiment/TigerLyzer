@@ -18,7 +18,7 @@
 #include <functional>  // plus/minus/multiplies
 #include <utility>     //std::make_pair
 #include <map>         //std::map
-#include <mutex> //protect against concurrent access when using (unordered) parallel for loops
+#include <mutex>       //std::mutex
 // Boost Headers
 #include <boost/algorithm/string.hpp>  //split() and is_any_of for parsing .csv files
 #include <boost/lexical_cast.hpp>  //lexical cast (unsurprisingly)
@@ -35,8 +35,6 @@ SingleSpectrum::SingleSpectrum(std::string raw_data) {
     ParseRawData(raw_data);
     //convert from natives units of dBm to absolute power in watts
     dBmToWatts();
-    //perform initial binning using a bin width of 72 points.
-//    InitialBin( 72 );
 }
 
 SingleSpectrum::SingleSpectrum(uint size) {

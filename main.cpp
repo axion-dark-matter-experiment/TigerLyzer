@@ -10,15 +10,19 @@
 
 #include <chrono>
 
-/*
-//idiom for writing spectrum to file
-std::ofstream ofs;
-ofs.open ("/home/bephillips2/test_data.txt", std::ofstream::out | std::ofstream::app);
-ofs << spectra_c;
-ofs.close();
-*/
-
-//int main(int argc, char *argv[])
+/*! \mainpage Tigerlyzer: An analysis program for the Electric Tiger experiment
+ *
+ * \section intro_sec Introduction
+ *
+ * This program is designed to interpret data collected by the Electric Tiger experiment
+ * and generate exclusion limits on \f$ g_{a\gamma\gamma} ( GeV^{-1} ) \f$.
+ *
+ * \section Dependencies
+ *      \li boost/algorithm/string
+ *      \li OpenMP ( and Compilier that supports OpenMP #pragma's such as GCC)
+ *      \li gnuplot-iostream (included with program files)
+ *
+ */
 
 int main() {
 
@@ -27,10 +31,9 @@ int main() {
     Spectrum spectra;
 
     for (int i = 0 ; i < 1 ; i++) {
-        auto Reader = FlatFileReader("/home/bephillips2/workspace/Electric_Tiger_Control_Code/data/27_20_00_20.08.2016/");
+        auto Reader = FlatFileReader("/home/bephillips2/workspace/Electric_Tiger_Control_Code/data/27_20_00_20.08.2016/", "SA_F");
 //        auto Reader = FlatFileReader("/home/bephillips2/workspace/Electric_Tiger_Control_Code/data/09_56_11_17.08.2016/");
 
-//        #pragma omp parallel for ordered
         for( uint j = 0 ; j < Reader.size() ; j ++) {
 
             std::cout << "Loading spectrum "<< j << std::endl;
