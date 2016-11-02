@@ -33,6 +33,7 @@
 SingleSpectrum::SingleSpectrum(std::string raw_data) {
     //Load relevent parameters from string
     ParseRawData(raw_data);
+
     //convert from natives units of dBm to absolute power in watts
     dBmToWatts();
 }
@@ -380,6 +381,8 @@ std::string SingleSpectrum::units() {
     case Units::Watts:
         return "Watts";
         break;
+    case Units::ExclLimit90:
+        return "90% Exclusion Limits";
     default:
         return "";
         break;
@@ -408,7 +411,7 @@ void SingleSpectrum::InitialBin ( uint bin_points ) {
     // bins overlap in half bin size increments
     uint bin_window = static_cast<uint>(bin_points / 2);
 
-    double prev_sum = 0; // sum of previous 36 FFT points
+    double prev_sum = 0; // sum of previous FFT points
     double curr_sum = 0; // running sum of current FFT points
 
     std::vector<double> rebinned_power_list;

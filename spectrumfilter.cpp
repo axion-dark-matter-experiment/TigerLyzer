@@ -146,6 +146,30 @@ std::vector<double> Unsharp(std::vector<double>& data_list, uint radius) {
     return data_list;
 }
 
+uint AutoOptimize(SingleSpectrum& spec) {
+
+    double target = 1.0f/sqrt( spec.size() );
+    std::vector<double> deltas;
+
+    for ( uint i = 1; i < 35; i++) {
+        auto copy = spec;
+
+        UnsharpMask( copy, i );
+        double aim = copy.mean()/copy.std_dev();
+
+        double delta = target - aim;
+
+        deltas.push_back( delta );
+
+    }
+
+    auto result = std::min_element(std::begin(deltas), std::end(deltas));
+
+    auto i = std::distance(std::begin(deltas), result);
+    return static_cast<uint>( i ) + 1;
+
+}
+
 
 void GaussianFilter( SingleSpectrum& spec, uint radius ) {
     spec.sa_power_list = GaussBlur(spec.sa_power_list, radius);

@@ -24,8 +24,7 @@
  *
  */
 
-int main() {
-
+void Analysis() {
     auto start = std::chrono::high_resolution_clock::now();
 
     Spectrum spectra;
@@ -45,7 +44,8 @@ int main() {
                 plot( spec, "Single Digitized Power Spectrum");
             }
 
-            UnsharpMask( spec, 10 );
+            uint opt_radius = AutoOptimize( spec );
+            UnsharpMask( spec, opt_radius );
 
             if( j == 20 ) {
                 plot( spec, "Background Subtracted Power Spectrum");
@@ -86,4 +86,26 @@ int main() {
     auto time_taken = fp_ms.count();
 
     std::cout<<"Took "<<time_taken<<" ms."<<std::endl;
+}
+
+void Optimize() {
+    auto Reader = FlatFileReader("/home/bephillips2/workspace/Electric_Tiger_Control_Code/data/27_20_00_20.08.2016/", "SA_F");
+//        auto Reader = FlatFileReader("/home/bephillips2/workspace/Electric_Tiger_Control_Code/data/09_56_11_17.08.2016/");
+
+    for( uint j = 0 ; j < Reader.size() ; j ++) {
+
+        std::cout << "Optimizing spectrum "<< j << std::endl;
+        auto spec = SingleSpectrum( Reader.at(j) ) ;
+
+        uint best_radius = AutoOptimize( spec );
+        std::cout << best_radius << std::endl;
+
+    }
+
+}
+
+int main() {
+    Analysis();
+//    Optimize();
+
 }

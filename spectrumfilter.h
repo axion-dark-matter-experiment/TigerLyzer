@@ -55,4 +55,24 @@ void GaussianFilter(SingleSpectrum& spec, uint radius);
  */
 void UnsharpMask(SingleSpectrum& spec, uint radius);
 
+/*!
+ * \brief Compute the ideal radius to be used for background subtraction using the UnsharpMask function.
+ *
+ * We assume each spectra we collect will be a combination of white noise, static structure and (perhaps)
+ * and axion signal. We wish to remove the static structure from the rest of the signal using the UnsharpMask
+ * function. We need to be careful to remove as much of the static structure as possible without removing any of the actual
+ * signal. Since we assume our noise is white noise we know that our signal should follow the relationship that
+ * \f$ \frac{\mu}{\sigma} \approx \frac{1}{\sqrt{N}} \f$ where N is the total number of points in the signal.
+ * This function will compute what parameter, as used by the UnsharpMask function, will yield a signal
+ * that is closest to satisfying the previous statement.
+ *
+ *
+ * \param spec
+ * The spectrum that will later have static structure removed.
+ *
+ * \return
+ * The kernel radius (as used by the UnsharpMask function) that will yield optimal background subtraction.
+ */
+uint AutoOptimize(SingleSpectrum& spec);
+
 #endif // SPECTRUMFILTER_H

@@ -139,41 +139,13 @@ SingleSpectrum Spectrum::GrandSpectrum() {
         }
     }
 
+    grand_spectrum.current_units = Units::AxionPower;
     return grand_spectrum;
 }
 
 template<typename T> inline T positive_part ( T& x ) {
     return ( x < 0 )? 0 : x;
 }
-
-
-//SingleSpectrum Spectrum::Limits() {
-
-//    auto g_spectrum = GrandSpectrum();
-
-//    for (uint i = 0; i < g_spectrum.size() ; i++ ) {
-
-//        //double x=grand_g_prediction.power[i];
-//        //if(x<0) x=0;
-//        //thelimits.power[i]=x+2.0*grand_g_prediction.uncertainty[i];
-
-//        //thelimits.power[i] = sqrt(thelimits.power[i]) *get_axion_KSVZ_coupling(thelimits.getBinMidFreq(i));
-//        //thelimits.uncertainty[i] =get_axion_KSVZ_coupling(thelimits.getBinMidFreq(i));
-
-
-//        double gc_power = positive_part( g_spectrum.sa_power_list[i]);
-//        double excl_90_watts = gc_power + 1.282*g_spectrum.uncertainties[i];
-
-//        double power_ksvz = max_ksvz_power( 20, 1.54, g_spectrum.bin_mid_freq(i), 100 );
-
-//        g_spectrum.sa_power_list[i] = KSVZ_axion_coupling( g_spectrum.bin_mid_freq(i) )*sqrt( excl_90_watts/power_ksvz );
-//        g_spectrum.uncertainties[i] = KSVZ_axion_coupling(g_spectrum.bin_mid_freq(i));
-//    }
-
-//    g_spectrum.rebin( 600 );
-
-//    return g_spectrum;
-//}
 
 SingleSpectrum Spectrum::Limits() {
 
@@ -189,6 +161,7 @@ SingleSpectrum Spectrum::Limits() {
     }
 
     g_spectrum.rebin( 600 );
+    g_spectrum.current_units = Units::ExclLimit90;
 
     return g_spectrum;
 }
@@ -199,25 +172,6 @@ inline double axion_coupling_power( double g_spec_power, double g_spec_mid_freq 
 
 inline double axion_coupling_uncertainity ( double g_spec_uncertainity, double g_spec_mid_freq ) {
     return g_spec_uncertainity*pow(KSVZ_axion_coupling(g_spec_mid_freq),2.0);
-}
-
-SingleSpectrum Spectrum::GSquaredPrediction() {
-
-    auto g_spec = GrandSpectrum();
-
-    for( uint i = 0 ; i < g_spec.size() ; i++ ) {
-
-        double power = g_spec.sa_power_list.at(i);
-        double uncertainty = g_spec.uncertainties.at(i);
-        double mid_freq = g_spec.bin_mid_freq(i);
-
-        double ax_power = axion_coupling_power ( power, mid_freq );
-        g_spec.sa_power_list.at(i) = ax_power;
-        double ax_uncertainity = axion_coupling_power ( uncertainty, mid_freq );
-        g_spec.uncertainties.at(i) = ax_uncertainity;
-    }
-
-    return g_spec;
 }
 
 //Operation does not seem to benefit from parallelism

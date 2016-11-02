@@ -156,10 +156,10 @@ class SingleSpectrum {
 
     friend void GaussianFilter ( SingleSpectrum& spec, uint radius );
     friend void UnsharpMask ( SingleSpectrum& spec, uint radius );
+    friend uint AutoOptimize ( SingleSpectrum& spec );
 
     friend SingleSpectrum Spectrum::GrandSpectrum();
     friend SingleSpectrum Spectrum::Limits();
-    friend SingleSpectrum Spectrum::GSquaredPrediction();
 
     /*!
      * \brief Perform initial binning of a raw power spectrum and initializes spectrum uncertainties.

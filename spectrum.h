@@ -70,11 +70,13 @@ class Spectrum {
     SingleSpectrum GrandSpectrum();
 
     /*!
-     * \brief Combine all currently
+     * \brief Combine all currently loaded spectra to form a 90% exclusion Limit.
+     *
+     *
      * \return
+     * A SingleSpectrum class with 'power' value representing the exclusion Limit values.
      */
     SingleSpectrum Limits();
-    SingleSpectrum GSquaredPrediction();
 
     /*!
      * \brief Call SingleSpectrum::dBmToWatts() on all loaded spectra.
@@ -114,9 +116,6 @@ class Spectrum {
     /*!
      * \brief Similiar to std::vector::at()- return the SingleSpectrum
      * at a particular index position.
-     *
-     * \param idx
-     * \return
      */
     SingleSpectrum at(uint idx);
 
