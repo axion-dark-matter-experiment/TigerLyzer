@@ -151,8 +151,8 @@ class SingleSpectrum {
     friend SingleSpectrum operator+ (SingleSpectrum& spectra_a, double scalar);
     friend SingleSpectrum operator- (SingleSpectrum& spectra_a, double scalar);
 
-    friend void plot ( SingleSpectrum& spec, std::string plot_title );
-    friend void plot ( SingleSpectrum& spec, uint num_plot_points, std::string plot_title );
+    friend void plot ( SingleSpectrum& spec, std::string plot_title, std::string save_file_path );
+    friend void plot ( SingleSpectrum& spec, uint num_plot_points, std::string plot_title, std::string save_file_path );
 
     friend void GaussianFilter ( SingleSpectrum& spec, uint radius );
     friend void UnsharpMask ( SingleSpectrum& spec, uint radius );

@@ -28,7 +28,7 @@
  * \param plot_title
  * The title that will appear on the graph
  */
-void plot ( SingleSpectrum& spec, std::string plot_title );
+void plot ( SingleSpectrum& spec, std::string plot_title, std::string save_file_path = "" );
 
 
 /*!
@@ -51,6 +51,6 @@ void plot ( SingleSpectrum& spec, std::string plot_title );
  * \param plot_title
  * The title that will appear on the graph
  */
-void plot ( SingleSpectrum& spec, uint num_plot_points, std::string plot_title );
+void plot ( SingleSpectrum& spec, uint num_plot_points, std::string plot_title, std::string save_file_path = "");
 
 #endif // PLOTTER_H

@@ -41,7 +41,7 @@ void Analysis() {
             //Note that all background subtraction steps should be perfomred -before-
             //initial binning
             if( j == 20 ) {
-                plot( spec, "Single Digitized Power Spectrum");
+                plot( spec, "Single Digitized Power Spectrum" );
             }
 
             uint opt_radius = AutoOptimize( spec );
@@ -79,7 +79,7 @@ void Analysis() {
 
     std::cout << "Building limits." << std::endl;
     auto limits = spectra.Limits();
-    plot ( limits, "Limits" );
+    plot ( limits, "Limits", "/home/bephillips2/90_excl_limits.png" );
 
     auto end = std::chrono::high_resolution_clock::now();
     std::chrono::duration<double, std::milli> fp_ms = end - start;

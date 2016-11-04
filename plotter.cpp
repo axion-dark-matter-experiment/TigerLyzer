@@ -12,7 +12,7 @@
 // Project specific headers
 //
 
-void plot ( SingleSpectrum& spec, std::string plot_title ) {
+void plot ( SingleSpectrum& spec, std::string plot_title, std::string save_file_path ) {
 
     Gnuplot gp;
 
@@ -28,13 +28,21 @@ void plot ( SingleSpectrum& spec, std::string plot_title ) {
     }
 
     gp << "set title '"+plot_title+"'\n";
+    gp << "set xlabel 'Frequency (MHz)'";
+    gp << "set ylabel 'Power "+spec.units()+"'\n";
 
     std::string cmd = "plot '-' using 1:2 with lines title 'Power: "+spec.units()+"'\n";
+
+    if( !save_file_path.empty() ) {
+        std::string header = "set terminal png size 1920,1080\n";
+        header += "set output '"+save_file_path+"'\n";
+        cmd.insert (0,header);
+    }
     gp << cmd;
     gp.send( boost::make_tuple( x_vals, spec.sa_power_list ) );
 }
 
-void plot ( SingleSpectrum& spec, uint num_plot_points, std::string plot_title ) {
+void plot ( SingleSpectrum& spec, uint num_plot_points, std::string plot_title, std::string save_file_path ) {
 
     Gnuplot gp;
 
