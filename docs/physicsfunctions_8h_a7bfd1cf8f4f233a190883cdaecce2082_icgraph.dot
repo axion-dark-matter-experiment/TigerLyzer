@@ -1,0 +1,9 @@
+digraph "max_ksvz_power"
+{
+  edge [fontname="Helvetica",fontsize="10",labelfontname="Helvetica",labelfontsize="10"];
+  node [fontname="Helvetica",fontsize="10",shape=record];
+  rankdir="LR";
+  Node1 [label="max_ksvz_power",height=0.2,width=0.4,color="black", fillcolor="grey75", style="filled", fontcolor="black"];
+  Node1 -> Node2 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node2 [label="SingleSpectrum::KSVZWeight",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$class_single_spectrum.html#aff7c0ae4597282530e2e7bfbab305dcf",tooltip="Convert spectrum from units of Excess power to units of . "];
+}

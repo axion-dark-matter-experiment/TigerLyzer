@@ -155,8 +155,8 @@ class SingleSpectrum {
     friend void plot ( SingleSpectrum& spec, uint num_plot_points, std::string plot_title, std::string save_file_path );
 
     friend void GaussianFilter ( SingleSpectrum& spec, uint radius );
-    friend void UnsharpMask ( SingleSpectrum& spec, uint radius );
-    friend uint AutoOptimize ( SingleSpectrum& spec );
+    friend void UnsharpMask ( SingleSpectrum& spec, uint radius, double sigma );
+    friend std::pair< uint, double > AutoOptimize ( SingleSpectrum& spec, uint max_radius, uint max_sigma );
 
     friend SingleSpectrum Spectrum::GrandSpectrum();
     friend SingleSpectrum Spectrum::Limits();

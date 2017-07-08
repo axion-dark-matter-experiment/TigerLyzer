@@ -1,0 +1,30 @@
+\form#0:$ \mathcal{R}^n $
+\form#1:\[ L(f,f_0, Q) = \frac{\Gamma^2}{ (f - f_0)^2 + \Gamma^2} for \Gamma = \frac{f}{2*Q} \]
+\form#2:\[ L(f,f_0, Q) = \frac{\Gamma^2}{ (f - f_0)^2 + \Gamma^2} \ for \ \Gamma = \frac{f}{2*Q} \]
+\form#3:\[ L(f,f_0, Q) = \frac{\Gamma^2}{ (f - f_0)^2 + \Gamma^2}\\ \text{ for } \Gamma = \frac{f}{2*Q} \]
+\form#4:$ g_{a \gamma\gamma} $
+\form#5:$ g_{\gamma\gamma} ( GeV^{-1} ) $
+\form#6:$ g_{a\gamma\gamma} ( GeV^{-1} ) $
+\form#7:\[ S - S*G \text{ for }\\ G[n] = \frac{1}{\sqrt{2 \pi \sigma} } e^{ \frac{n}{\sigma}^2 } \text{ for } n \in [-r,r] \text{ and } r \in \mathbb{N} \]
+\form#8:\[ S - S*G \text{ for }\\ G[n] = \frac{1}{\sqrt{ \pi r} } e^{ \frac{2 n}{r}^2 } \text{ for } n \in [-r,r] \text{ and } r \in \mathbb{N} \]
+\form#9:\[ S - S*G \text{ for }\\ G[n] = \frac{1}{\sqrt{ \pi r} } e^{ \frac{2 n}{r}^2 } \text{ for } n \in [-r,r] \text{ and } r \in \mathbb{N} *\]
+\form#10:\[ \begin{verbatim} sa_span;10 fft_length;131072 effective_volume;20 bfield;0.00085 noise_temperature;1417 sa_averages;256 Q;128.4913492063492 actual_center_freq;4037.3840399002493 fitted_hwhm;15.71072319201995 cavity_length;7.693 -116.0639877 -116.0132904 -115.6643753 -116.1841431 -115.1884918 etc... *\end{verbatim} \]
+\form#11:\[ \begin{verbatim} sa_span;10\\ fft_length;131072\\ effective_volume;20\\ bfield;0.00085\\ noise_temperature;1417 sa_averages;256 Q;128.4913492063492 actual_center_freq;4037.3840399002493 fitted_hwhm;15.71072319201995 cavity_length;7.693 -116.0639877 -116.0132904 -115.6643753 -116.1841431 -115.1884918 etc... \end{verbatim} \]
+\form#12:\begin{verbatim} sa_span;10 fft_length;131072 effective_volume;20 bfield;0.00085 noise_temperature;1417 sa_averages;256 Q;128.4913492063492 actual_center_freq;4037.3840399002493 fitted_hwhm;15.71072319201995 cavity_length;7.693 -116.0639877 -116.0132904 -115.6643753 -116.1841431 -115.1884918 etc... \end{verbatim}
+\form#13:\begin{verbatim} sa_span;10 fft_length;131072 effective_volume;0.1 bfield;1.54 noise_temperature;400 sa_averages;256 Q;128.4913492063492 actual_center_freq;4037.3840399002493 fitted_hwhm;15.71072319201995 cavity_length;7.693 @ -116.0639877 -116.0132904 -115.6643753 -116.1841431 -115.1884918 etc... \end{verbatim}
+\form#14:\begin{verbatim} "sa_span", "fft_length", "effective_volume", "bfield", "noise_temperature", "sa_averages", "Q", "actual_center_freq", "fitted_hwhm", "bfield" \end{verbatim}
+\form#15:$ g_{\gamma\gamma} $
+\form#16:$ f_0 $
+\form#17:$ f(n) $
+\form#18:$ 0 \leq n \leq \text{size} $
+\form#19:$ L_2 $
+\form#20:$ \sqrt{\sum_{i=1}^n | P_i |^2} $
+\form#21:$ \forall i P_i/L(f,f_0,Q) $
+\form#22:$ \forall i \ \frac{P_i}{L(f,f_0,Q)} $
+\form#23:$ L(f,f_0,Q) $
+\form#24:$ 0 \leq start_chop $
+\form#25:$ end_chop \leq size() $
+\form#26:$ \leq $
+\form#27:$ \notin $
+\form#28:\[ S*G \text{ for }\\ G[n] = \frac{1}{\sqrt{ \pi r} } e^{ \frac{2 n}{r}^2 } \text{ for } n \in [-r,r] \text{ and } r \in \mathbb{N} \]
+\form#29:$ \frac{\mu}{\sigma} \approx \frac{1}{\sqrt{N}} $

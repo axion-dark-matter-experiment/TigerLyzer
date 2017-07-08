@@ -1,0 +1,11 @@
+digraph "SingleSpectrum::KSVZWeight"
+{
+  edge [fontname="Helvetica",fontsize="10",labelfontname="Helvetica",labelfontsize="10"];
+  node [fontname="Helvetica",fontsize="10",shape=record];
+  rankdir="LR";
+  Node1 [label="SingleSpectrum::KSVZWeight",height=0.2,width=0.4,color="black", fillcolor="grey75", style="filled", fontcolor="black"];
+  Node1 -> Node2 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node2 [label="SingleSpectrum::size",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$class_single_spectrum.html#a42c2d13e632ffc2d4f0931376c5b6e5b",tooltip="similar to std::vector::size(), get the number of points in the current spectrum. ..."];
+  Node1 -> Node3 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node3 [label="max_ksvz_power",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$physicsfunctions_8h.html#a7bfd1cf8f4f233a190883cdaecce2082",tooltip="Compute expected power (in Watts) from an axion to photon conversion Assumes a dark matter halo densi..."];
+}

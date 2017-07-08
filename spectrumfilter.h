@@ -53,7 +53,7 @@ void GaussianFilter(SingleSpectrum& spec, uint radius);
  * The radius of the Gaussian kernel used in the convolution. The radius implicitly
  * sets the standard deviation of the kernel equal to 5/2*radius.
  */
-void UnsharpMask(SingleSpectrum& spec, uint radius);
+void UnsharpMask(SingleSpectrum& spec, uint radius, double sigma );
 
 /*!
  * \brief Compute the ideal radius to be used for background subtraction using the UnsharpMask function.
@@ -73,6 +73,6 @@ void UnsharpMask(SingleSpectrum& spec, uint radius);
  * \return
  * The kernel radius (as used by the UnsharpMask function) that will yield optimal background subtraction.
  */
-uint AutoOptimize(SingleSpectrum& spec);
+std::pair< uint, double > AutoOptimize( SingleSpectrum& spec, uint max_radius, uint max_sigma );
 
 #endif // SPECTRUMFILTER_H

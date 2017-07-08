@@ -16,6 +16,8 @@
 #include <functional> // plus/minus
 #include <utility>//std::make_pair
 #include <map>//std::map
+#include <limits>// std::numeric_limits<double>::max()
+#include <utility>// std::pair
 //Boost Headers
 #include <boost/algorithm/string.hpp>//split() and is_any_of for parsing .csv files
 #include <boost/lexical_cast.hpp>//lexical cast (unsurprisingly)
@@ -26,26 +28,28 @@
 
 //sum all enteries in a vector, with optional parameter of raising each entry to a power
 //used by Standard Deviation function
-inline double sum(std::vector<double>& data_list,double exponent) {
-    double tot=0;
-    for (auto& val : data_list) {
-        tot+=pow(val,exponent);
+double sum(std::vector<double>& data_list,double exponent) {
+
+    double tot = 0;
+    for ( auto& val : data_list ) {
+        tot+= std::pow( val, exponent );
     }
+
     return tot;
 }
 
 inline double norm(std::vector<double>& data_list ) {
-    return sqrt(sum(data_list,2.0));
+    return std::sqrt(sum(data_list,2.0));
 }
 
 //define a gaussian function with standard deviation sigma and a mean value of zero
 //used in the construction of gaussian kernels
 inline double gaussian(double x, double sigma) {
-    return 1/(sqrt(M_PI_2)*sigma)*exp( -0.5 *pow(x/sigma,2.0));
+    return 1.0/(std::sqrt(M_PI_2)*sigma)*std::exp( -0.5 *std::pow(x/sigma,2.0));
 }
 
 std::vector<double> Normalize(std::vector<double>& data_list) {
-    double norm_factor=sqrt(sum(data_list,2));
+    double norm_factor=std::sqrt(sum(data_list,2));
 
     for(unsigned int i = 0; i<data_list.size(); i++) {
         data_list.at(i)=data_list.at(i)/norm_factor;
@@ -64,7 +68,63 @@ std::vector<double> GaussKernel(int r) {
     }
 
     //normalize kernel before returning
-    return Normalize(vals);
+    return Normalize( vals );
+}
+
+//generate a gaussian kernel of radius 'r', suitable for convolutions
+//kernel will have a standard deviation set by user
+std::vector<double> GaussKernel( int r, double sigma ) {
+
+    std::vector<double> vals;
+    for( int i = -r; i<= r ; i ++) {
+        vals.push_back(gaussian(i,sigma));
+    }
+
+    //normalize kernel before returning
+    return Normalize( vals );
+}
+
+
+std::vector<double> UnsharpKernel( int radius, double sigma ) {
+
+    std::vector<double> kernel( 2*radius + 1 );
+
+    for( int i = -radius; i <= -1 ; i ++) {
+        kernel.push_back( -1.0*gaussian( i, sigma ) );
+    }
+
+    kernel.push_back( 1.0 - gaussian( 0, sigma ) );
+
+    for( int i = 1; i <= radius ; i ++) {
+        kernel.push_back( -1.0*gaussian( i, sigma ) );
+    }
+
+    //normalize kernel before returning
+    return Normalize( kernel );
+}
+
+inline double special_sinc( const double x, double f_t ) {
+    if( x == 0.0 ) {
+        return 2.0*f_t;
+    } else {
+        return std::sin(2*M_PI*f_t*x)/(M_PI*x);
+    }
+}
+
+std::vector< double > sinc_kernel( int radius, double cutoff_frequency, double sample_frequency ) {
+
+    std::vector<double> vals( 2*radius + 1 );
+    double f_t = cutoff_frequency/sample_frequency;
+
+    for( int i = -radius; i <= radius ; i ++) {
+
+        double i_f = static_cast<double>(i);
+        vals.push_back( special_sinc( i_f, f_t ) );
+    }
+
+    //normalize kernel before returning
+    return Normalize( vals );
+
 }
 
 template <typename T>
@@ -117,9 +177,9 @@ std::vector<double> GaussBlur(std::vector<double>& data_list, uint radius) {
     return LinearConvolve( data_list, gauss_matrix );
 }
 
-std::vector<double> Unsharp(std::vector<double>& data_list, uint radius) {
+std::vector<double> Unsharp( std::vector<double>& data_list, uint radius, double sigma ) {
 
-    auto gauss_matrix = GaussKernel( radius );
+    auto gauss_matrix = GaussKernel( radius, sigma );
     auto blurred_mat = LinearConvolve( data_list, gauss_matrix );
 
 
@@ -146,35 +206,158 @@ std::vector<double> Unsharp(std::vector<double>& data_list, uint radius) {
     return data_list;
 }
 
-uint AutoOptimize(SingleSpectrum& spec) {
+std::vector<double> SincFilter( std::vector<double>& data_list, uint radius, double cutoff_frequency, double sample_frequency ) {
 
-    double target = 1.0f/sqrt( spec.size() );
-    std::vector<double> deltas;
+    auto sinc_matrix = sinc_kernel( radius, cutoff_frequency, sample_frequency );
+    auto sharpened_signal = LinearConvolve( data_list, sinc_matrix );
 
-    for ( uint i = 1; i < 35; i++) {
-        auto copy = spec;
 
-        UnsharpMask( copy, i );
-        double aim = copy.mean()/copy.std_dev();
+    //Even though our Gaussian kernel was normalized we cannot expect the
+    //norm of our convolved matrix to be equal to the norm of the original
+    //matrix. We need to compensate for this by multiplying the convolved
+    //matrix by the ratio- original_matrix_norm/convolved_matrix_norm;
+    double norm_factor = ( norm(data_list)/norm(sharpened_signal) );
 
-        double delta = target - aim;
+    std::transform(sharpened_signal.begin(),\
+                   sharpened_signal.end(),\
+                   sharpened_signal.begin(),\
+                   std::bind1st(std::multiplies<double>(),\
+                                norm_factor));
 
-        deltas.push_back( delta );
+    return sharpened_signal;
+}
+
+//std::vector<double> Unsharp( std::vector<double>& data_list, uint radius, double sigma ) {
+
+//    auto unsharp_matrix = UnsharpKernel( radius, sigma );
+//    auto sharpened_signal = LinearConvolve( data_list, unsharp_matrix );
+
+
+//    //Even though our Gaussian kernel was normalized we cannot expect the
+//    //norm of our convolved matrix to be equal to the norm of the original
+//    //matrix. We need to compensate for this by multiplying the convolved
+//    //matrix by the ratio- original_matrix_norm/convolved_matrix_norm;
+//    double norm_factor = ( norm(data_list)/norm(sharpened_signal) );
+
+//    std::transform(sharpened_signal.begin(),\
+//                   sharpened_signal.end(),\
+//                   sharpened_signal.begin(),\
+//                   std::bind1st(std::multiplies<double>(),\
+//                                norm_factor));
+
+//    return sharpened_signal;
+//}
+
+double mean( std::vector< double >& data_list ) {
+    //compute mean value of data set
+    double sum_x = sum( data_list, 1.0 );
+    double n = static_cast<double>( data_list.size() );
+    return sum_x/n;
+}
+
+double std_dev ( std::vector<double> &data_list ) {
+
+    //compute mean value of data set
+    double sum_x = sum( data_list,1.0 );
+    double n = static_cast<double>( data_list.size() );
+    double mean = sum_x/n;
+
+    //compute variance taking into account Bessel's correction i.e. n/(n-1)
+    double sum_x2 = sum( data_list, 2.0 );
+    double sigma_sqr = sum_x2/( n - 1.0 )-n/( n-1.0 )*std::pow( mean, 2.0 );
+
+    //return square root of variance
+    return std::sqrt(sigma_sqr);
+}
+
+std::pair< uint, double > AutoOptimize( SingleSpectrum& spec, uint max_radius, double sample_frequency ) {
+
+    double target = 1.0/sqrt( static_cast<double>( spec.size() ) );
+    std::vector<double> spec_data = spec.sa_power_list;
+    Normalize( spec_data );
+
+    double smallest_delta = std::numeric_limits<double>::max();
+    std::pair< uint, double > optimal_parameters { 0, 0.0 };
+
+    double max_frequency = sample_frequency/2.0;
+
+    for ( uint radius_it = 1; radius_it < max_radius; radius_it++ ) {
+
+        for( uint sigma_it = 0; sigma_it < max_frequency; sigma_it++ ) {
+
+            double sigma_f = static_cast<double>( sigma_it ) + 0.01;
+
+            std::cout << "Trying parameters: ("<< radius_it << "," << sigma_f <<")" << std::endl;
+
+            auto test_signal = Unsharp( spec_data, radius_it, sigma_f );
+
+            double aim = mean( test_signal )/std_dev( test_signal );
+
+            double delta = std::abs( target - aim );
+
+            std::cout << "Ratio of delta to target: " << aim/target << std::endl;
+
+            if( delta < smallest_delta ) {
+
+                smallest_delta = delta;
+                optimal_parameters = std::pair< uint, double > { radius_it, sigma_f };
+                std::cout << "New parameters were smaller!" << std::endl;
+            }
+
+        }
 
     }
 
-    auto result = std::min_element(std::begin(deltas), std::end(deltas));
-
-    auto i = std::distance(std::begin(deltas), result);
-    return static_cast<uint>( i ) + 1;
+    return optimal_parameters;
 
 }
+
+
+//std::pair< uint, double > AutoOptimize( SingleSpectrum& spec, uint max_radius, uint max_sigma ) {
+
+//    double target = 1.0/sqrt( static_cast<double>( spec.size() ) );
+//    std::vector<double> spec_data = spec.sa_power_list;
+//    Normalize( spec_data );
+
+//    double smallest_delta = std::numeric_limits<double>::max();
+//    std::pair< uint, double > optimal_parameters { 0, 0.0 };
+
+//    for ( uint radius_it = 1; radius_it < max_radius; radius_it++ ) {
+
+//        for( uint sigma_it = 0; sigma_it < max_sigma*10; sigma_it++ ) {
+
+//            double sigma_f = static_cast<double>( sigma_it )/10.0 + 0.01;
+
+//            std::cout << "Trying parameters: ("<< radius_it << "," << sigma_f <<")" << std::endl;
+
+//            auto test_signal = Unsharp( spec_data, radius_it, sigma_f );
+
+//            double aim = mean( test_signal )/std_dev( test_signal );
+
+//            double delta = std::abs( target - aim );
+
+//            std::cout << "Ratio of delta to target: " << aim/target << std::endl;
+
+//            if( delta < smallest_delta ) {
+
+//                smallest_delta = delta;
+//                optimal_parameters = std::pair< uint, double > { radius_it, sigma_f };
+//                std::cout << "New parameters were smaller!" << std::endl;
+//            }
+
+//        }
+
+//    }
+
+//    return optimal_parameters;
+
+//}
 
 
 void GaussianFilter( SingleSpectrum& spec, uint radius ) {
     spec.sa_power_list = GaussBlur(spec.sa_power_list, radius);
 }
 
-void UnsharpMask( SingleSpectrum& spec, uint radius ) {
-    spec.sa_power_list = Unsharp(spec.sa_power_list, radius);
+void UnsharpMask( SingleSpectrum& spec, uint radius, double sigma ) {
+    spec.sa_power_list = Unsharp( spec.sa_power_list, radius, sigma );
 }

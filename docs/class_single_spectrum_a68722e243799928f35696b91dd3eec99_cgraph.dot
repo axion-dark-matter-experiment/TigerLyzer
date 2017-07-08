@@ -1,0 +1,17 @@
+digraph "SingleSpectrum::InitialBin"
+{
+  edge [fontname="Helvetica",fontsize="10",labelfontname="Helvetica",labelfontsize="10"];
+  node [fontname="Helvetica",fontsize="10",shape=record];
+  rankdir="LR";
+  Node1 [label="SingleSpectrum::InitialBin",height=0.2,width=0.4,color="black", fillcolor="grey75", style="filled", fontcolor="black"];
+  Node1 -> Node2 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node2 [label="SingleSpectrum::size",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$class_single_spectrum.html#a42c2d13e632ffc2d4f0931376c5b6e5b",tooltip="similar to std::vector::size(), get the number of points in the current spectrum. ..."];
+  Node1 -> Node3 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node3 [label="SingleSpectrum::min_freq",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$class_single_spectrum.html#a6b32df4657d7e4abb9afaedadbd50486",tooltip="Get the minimum (smallest) frequency stored in the current spectrum. "];
+  Node1 -> Node4 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node4 [label="SingleSpectrum::max_freq",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$class_single_spectrum.html#accb195e89e0fc81ea8a0ba61f0b800ba",tooltip="Get the maximum (largest) frequency stored in the current spectrum. "];
+  Node4 -> Node5 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node5 [label="SingleSpectrum::mean",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$class_single_spectrum.html#a39f66345fd7d6502bbc8ba731cc1bb13",tooltip="Compute the arithmetic mean of the current spectrum. "];
+  Node5 -> Node6 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node6 [label="SingleSpectrum::std_dev",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$class_single_spectrum.html#a138e3db04f9db67a699c8dddfef8f324",tooltip="Compute the standard deviation of the current spectrum. "];
+}

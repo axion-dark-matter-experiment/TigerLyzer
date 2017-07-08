@@ -1,0 +1,11 @@
+digraph "power_per_bin"
+{
+  edge [fontname="Helvetica",fontsize="10",labelfontname="Helvetica",labelfontsize="10"];
+  node [fontname="Helvetica",fontsize="10",shape=record];
+  rankdir="LR";
+  Node1 [label="power_per_bin",height=0.2,width=0.4,color="black", fillcolor="grey75", style="filled", fontcolor="black"];
+  Node1 -> Node2 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node2 [label="SingleSpectrum::WattsToExcess\lPower",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$class_single_spectrum.html#aab066652966cbd493157ba60449e78ee",tooltip="Convert from units of Watts to ExcessPower, i.e. Watts above power due to noise. "];
+  Node1 -> Node3 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node3 [label="SingleSpectrum::units",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$class_single_spectrum.html#a20a4b8c22c80d84341e4226f43a54c50",tooltip="Get the current units that the Spectrum is in. "];
+}

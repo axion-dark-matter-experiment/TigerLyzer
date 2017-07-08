@@ -28,7 +28,7 @@ void plot ( SingleSpectrum& spec, std::string plot_title, std::string save_file_
     }
 
     gp << "set title '"+plot_title+"'\n";
-    gp << "set xlabel 'Frequency (MHz)'";
+    gp << "set xlabel 'Frequency (MHz)'\n";
     gp << "set ylabel 'Power "+spec.units()+"'\n";
 
     std::string cmd = "plot '-' using 1:2 with lines title 'Power: "+spec.units()+"'\n";

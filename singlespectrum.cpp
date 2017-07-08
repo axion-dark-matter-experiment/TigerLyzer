@@ -103,8 +103,14 @@ std::ostream& operator << (std::ostream& stream, SingleSpectrum& spectrum) {
 
 std::ofstream& operator << (std::ofstream& stream, SingleSpectrum& spectrum) {
 
+    double delta_f = spectrum.max_freq() - spectrum.min_freq();
+    double min_f = spectrum.min_freq();
+    double n = static_cast<double>( spectrum.size() );
+
     for(unsigned int i=0; i<spectrum.size(); i++) {
-        stream << spectrum.sa_power_list[i] << std::endl;
+
+        double freq = delta_f*( i / n ) + min_f;
+        stream << freq << "," << spectrum.sa_power_list[i] << std::endl;
     }
 
     return stream;
@@ -382,7 +388,7 @@ std::string SingleSpectrum::units() {
         return "Watts";
         break;
     case Units::ExclLimit90:
-        return "90% Exclusion Limits";
+        return "G a gamma gamma ( GeV ^ -1 )";
     default:
         return "";
         break;
@@ -492,8 +498,8 @@ void SingleSpectrum::rebin( uint points_per_bin ) {
     double highest_uncertainty = min_uncertainty;
 
     for ( uint i = 0 ; i < size() ; i ++ ) {
-        highest_power = fmax(highest_power, sa_power_list[i]);
-        highest_uncertainty = fmax(highest_uncertainty, uncertainties[i]);
+        highest_power = std::max(highest_power, sa_power_list[i]);
+        highest_uncertainty = std::max(highest_uncertainty, uncertainties[i]);
 
         if ((i % points_per_bin) == points_per_bin - 1) {
 

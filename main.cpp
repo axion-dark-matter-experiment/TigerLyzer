@@ -44,8 +44,14 @@ void Analysis() {
                 plot( spec, "Single Digitized Power Spectrum" );
             }
 
-            uint opt_radius = AutoOptimize( spec );
-            UnsharpMask( spec, opt_radius );
+            auto opt_parameters = AutoOptimize( spec, 10, 5 );
+
+            uint opt_radius = opt_parameters.first;
+            double opt_sigma = opt_parameters.second;
+
+            std::cout << "Optimal Parameters: " << opt_radius << "," << opt_sigma << std::endl;
+
+            UnsharpMask( spec, opt_radius, opt_sigma );
 
             if( j == 20 ) {
                 plot( spec, "Background Subtracted Power Spectrum");
@@ -79,7 +85,12 @@ void Analysis() {
 
     std::cout << "Building limits." << std::endl;
     auto limits = spectra.Limits();
-    plot ( limits, "Limits", "/home/bephillips2/90_excl_limits.png" );
+    plot ( limits, "Limits" );
+
+//    std::ofstream output_file;
+//    output_file.open ("/home/bephillips2/etig_90_excl_limits.csv");
+//    output_file << limits;
+//    output_file.close();
 
     auto end = std::chrono::high_resolution_clock::now();
     std::chrono::duration<double, std::milli> fp_ms = end - start;
@@ -88,23 +99,8 @@ void Analysis() {
     std::cout<<"Took "<<time_taken<<" ms."<<std::endl;
 }
 
-void Optimize() {
-    auto Reader = FlatFileReader("/home/bephillips2/workspace/Electric_Tiger_Control_Code/data/27_20_00_20.08.2016/", "SA_F");
-//        auto Reader = FlatFileReader("/home/bephillips2/workspace/Electric_Tiger_Control_Code/data/09_56_11_17.08.2016/");
-
-    for( uint j = 0 ; j < Reader.size() ; j ++) {
-
-        std::cout << "Optimizing spectrum "<< j << std::endl;
-        auto spec = SingleSpectrum( Reader.at(j) ) ;
-
-        uint best_radius = AutoOptimize( spec );
-        std::cout << best_radius << std::endl;
-
-    }
-
-}
-
 int main() {
+
     Analysis();
 //    Optimize();
 
